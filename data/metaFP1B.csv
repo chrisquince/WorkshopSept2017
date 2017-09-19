@@ -1,0 +1,19 @@
+,Time,Type,Reactor,Depth,Port,Forward,Reverse,Day
+S54,T=0,Phase 1,R1,Bottom,P1/P2,http://admetareads.s3.climb.ac.uk/S54_R1.fastq,http://admetareads.s3.climb.ac.uk/S54_R2.fastq,4
+S58,T=0,Phase 1,R2,Bottom,P1/P2,http://admetareads.s3.climb.ac.uk/S58_R1.fastq,http://admetareads.s3.climb.ac.uk/S58_R2.fastq,4
+S62,T=0,Phase 1,R3,Bottom,P1/P2,http://admetareads.s3.climb.ac.uk/S62_R1.fastq,http://admetareads.s3.climb.ac.uk/S62_R2.fastq,4
+S1,T=1,Phase 1,R1,Bottom,P1/P2,http://admetareads.s3.climb.ac.uk/S1_R1.fastq,http://admetareads.s3.climb.ac.uk/S1_R2.fastq,25
+S5,T=1,Phase 1,R2,Bottom,P1/P2,http://admetareads.s3.climb.ac.uk/S5_R1.fastq,http://admetareads.s3.climb.ac.uk/S5_R2.fastq,25
+S9,T=1,Phase 1,R3,Bottom,P1/P2,http://admetareads.s3.climb.ac.uk/S9_R1.fastq,http://admetareads.s3.climb.ac.uk/S9_R2.fastq,25
+S102,T=2,Phase 1,R1,Bottom,P1/P2,http://admetareads.s3.climb.ac.uk/S102_R1.fastq,http://admetareads.s3.climb.ac.uk/S102_R2.fastq,46
+S106,T=2,Phase 1,R2,Bottom,P1/P2,http://admetareads.s3.climb.ac.uk/S106_R1.fastq,http://admetareads.s3.climb.ac.uk/S106_R2.fastq,46
+S110,T=2,Phase 1,R3,Bottom,P1/P2,http://admetareads.s3.climb.ac.uk/S110_R1.fastq,http://admetareads.s3.climb.ac.uk/S110_R2.fastq,46
+S156,T=3,Phase 1,R1,Bottom,P1/P2,http://admetareads.s3.climb.ac.uk/S156_R1.fastq,http://admetareads.s3.climb.ac.uk/S156_R2.fastq,67
+S161,T=3,Phase 1,R2,Bottom,P1/P2,http://admetareads.s3.climb.ac.uk/S161_R1.fastq,http://admetareads.s3.climb.ac.uk/S161_R2.fastq,67
+S166,T=3,Phase 1,R3,Bottom,P1/P2,http://admetareads.s3.climb.ac.uk/S166_R1.fastq,http://admetareads.s3.climb.ac.uk/S166_R2.fastq,67
+S211,T=4,Phase 1,R1,Bottom,P1/P2,http://admetareads.s3.climb.ac.uk/S211_R1.fastq,http://admetareads.s3.climb.ac.uk/S211_R2.fastq,95
+S216,T=4,Phase 1,R2,Bottom,P1/P2,http://admetareads.s3.climb.ac.uk/S216_R1.fastq,http://admetareads.s3.climb.ac.uk/S216_R2.fastq,95
+S221,T=4,Phase 1,R3,Bottom,P1/P2,http://admetareads.s3.climb.ac.uk/S221_R1.fastq,http://admetareads.s3.climb.ac.uk/S221_R2.fastq,95
+S266,02-Jun,Phase 1,R1,Bottom,P1/P2,http://admetareads.s3.climb.ac.uk/S266_R1.fastq,http://admetareads.s3.climb.ac.uk/S266_R2.fastq,112
+S271,02-Jun,Phase 1,R2,Bottom,P1/P2,http://admetareads.s3.climb.ac.uk/S271_R1.fastq,http://admetareads.s3.climb.ac.uk/S271_R2.fastq,112
+S276,02-Jun,Phase 1,R3,Bottom,P1/P2,http://admetareads.s3.climb.ac.uk/S276_R1.fastq,http://admetareads.s3.climb.ac.uk/S276_R2.fastq,112
