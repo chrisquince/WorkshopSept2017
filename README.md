@@ -65,7 +65,17 @@ Lets counts up reads in all files:
 for file in *_R1.fastq; do cat $file | echo $((`wc -l`/4)); done > Counts.txt
 ```
 
-And plot histogram:
+And plot histogram, median read number is 4,917,354:
+```
+R
+>library(ggplot2)
+>Counts <- read.csv('Counts.txt',header=FALSE)
+>summary(Counts$V1)
+>pdf("Counts.pdf")
+>qplot(Counts$V1, geom="histogram") 
+>dev.off()
+>q()
+```
 
 Now we run fastqc on one of the samples:
 ```
@@ -75,9 +85,38 @@ fastqc S102_R1.fastq
 Look at the output files:
 ```
 ls
-evince 
+firefox S102_R1_fastqc.html 
 ```
 
+## Taxonomic profiling
+
+For the taxonomic profiling we are going to subsample the fastq files to 1 million reads each 
+for performance purposes.
+
+```
+cd ~/Projects/AD
+mkdir ReadsSub
+for file in Reads/*R1*fastq
+do
+    base=${file##*/}
+    stub=${base%_R1.fastq}
+    echo $stub
+    seqtk sample -s100 $file 1000000 > ReadsSub/${stub}_Sub_R1.fastq
+    seqtk sample -s100 Reads/${stub}_R2.fastq 1000000 > ReadsSub/${stub}_Sub_R2.fastq
+done
+```
+
+We will use Kraken for profiling these reads but first lets convert them to interleaves fastq:
+
+```
+
+```
+
+How does Kraken work?
+![Kraken Figure1](Figures/KrakenFig.png)
+
+
+Discussion point what is a kmer?
 
 ## Software installation
 
@@ -123,4 +162,38 @@ sudo apt install evince
 4. Install html viewer firefox:
 ```
 sudo apt install firefox
+```
+
+5. Install Metaphlan2:
+```
+sudo apt install mercurial
+cd ~/Installation
+hg clone https://bitbucket.org/biobakery/metaphlan2
+```
+
+Requires python numpy:
+```
+sudo apt-get install python-pip
+sudo pip install numpy scipy
+``
+and also [BowTie2](https://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.3.3)
+
+6. Install Kraken
+
+Get the mini-kraken database:
+```
+wget http://ccb.jhu.edu/software/kraken/dl/minikraken.tgz
+```
+
+```
+git clone https://github.com/DerrickWood/kraken.git
+```
+
+7. Seqtk
+
+```
+cd ~/Installation
+git clone https://github.com/lh3/seqtk.git
+cd seqtk; make
+cp seqtk ~/bin/
 ```
