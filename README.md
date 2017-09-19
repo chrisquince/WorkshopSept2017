@@ -126,6 +126,54 @@ How does Kraken work?
 
 Discussion point what is a kmer?
 
+Now run kraken on the interleaved fastq:
+```
+mkdir Kraken
+for file in ReadsSub/*R12*fastq
+do
+    base=${file##*/}
+    stub=${base%_R12.fastq}
+    echo $stub
+    kraken --db ~/Databases/minikraken_20141208/ --threads 8 --preload --output Kraken/${stub}.kraken $file
+done
+```
+
+Look at percentage of reads classified. Anaerobic digesters are under studied communities!
+
+Discussion point what can we do about under representation in Database?
+
+The output is just a text file:
+
+```
+head Kraken/S102_Sub.kraken
+```
+
+And we can generate a report:
+
+```
+kraken-report --db ~/Databases/minikraken_20141208/  Kraken/S102_Sub.kraken >  Kraken/S102_Sub.kraken.report
+```
+
+Some people prefer a different format:
+```
+kraken-mpa-report --db ~/Databases/minikraken_20141208/ Kraken/S102_Sub.kraken > Kraken/S102_Sub.kraken.mpa.report
+```
+
+We can get a report of the predicted genera:
+```
+cat  Kraken/S102_Sub.kraken.report | awk '$4=="G"'
+```
+
+Now lets get reports on all samples:
+```
+for file in Kraken/*.kraken
+do
+    stub=${file%.kraken}
+    echo $stub
+    kraken-report --db ~/Databases/minikraken_20141208/ $file >  ${stub}.kraken.report
+done
+```
+
 ## Software installation
 
 Going to make an installation directory:
