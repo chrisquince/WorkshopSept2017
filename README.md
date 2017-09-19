@@ -106,15 +106,23 @@ do
 done
 ```
 
-We will use Kraken for profiling these reads but first lets convert them to interleaves fastq:
+We will use Kraken for profiling these reads but first lets convert them to interleaved fastq:
 
 ```
+for file in ReadsSub/*R1*fastq
+do
+    
+    stub=${file%_R1.fastq}
+    echo $stub
+    
+    python ~/repos/WorkshopSept2017/scripts/Interleave.py $file ${stub}_R2.fastq ${stub}_R12.fastq
+    
+done
 
 ```
 
 How does Kraken work?
 ![Kraken Figure1](Figures/KrakenFig.jpg)
-
 
 Discussion point what is a kmer?
 
@@ -196,4 +204,10 @@ cd ~/Installation
 git clone https://github.com/lh3/seqtk.git
 cd seqtk; make
 cp seqtk ~/bin/
+```
+
+8. Biopython
+```
+sudo apt-get update
+sudo apt-get install python-biopython
 ```
