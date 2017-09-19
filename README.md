@@ -113,7 +113,7 @@ We will use Kraken for profiling these reads but first lets convert them to inte
 ```
 
 How does Kraken work?
-![Kraken Figure1](Figures/KrakenFig.png)
+![Kraken Figure1](Figures/KrakenFig.jpg)
 
 
 Discussion point what is a kmer?
