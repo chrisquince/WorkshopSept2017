@@ -285,21 +285,70 @@ This will involve a collection of different software programs:
 We begin by performing a co-assembly of these samples using a program called megahit:
 
 ```
-ls Reads/*R1.fastq | tr "\n" "," | sed 's/,$//' > R1.csv
-ls Reads/*R2.fastq | tr "\n" "," | sed 's/,$//' > R2.csv
+ls ReadsSub/*R1.fastq | tr "\n" "," | sed 's/,$//' > R1.csv
+ls ReadsSub/*R2.fastq | tr "\n" "," | sed 's/,$//' > R2.csv
 ```
 
 ```
 nohup megahit -1 $(<R1.csv) -2 $(<R2.csv) -t 8 -o Assembly > megahit.out&
 ```
 
-cat MetaTutorial/*R12.fasta > MetaTutorial/All_R12.fasta
-megahit -r MetaTutorial/All_R12.fasta --presets meta -o Coassembly -t 8
+```
+contig-stats.pl < Assembly/final.contigs.fa
+```
 
-We can have a look at how good the assembly was:
+Should see results like:
+```
+sequence #: 469120	total length: 412545660	max length: 444864	N50: 1124	N90: 375
+```
 
-contig-stats.pl < Coassembly/final.contigs.fa
+Discussion point what is N50?
 
+If the assembly takes too long download the results instead:
+```
+mkdir Assembly
+cd Assembly
+wget https://septworkshop.s3.climb.ac.uk/final.contigs.fa
+cd ..
+```
+
+Then cut up contigs and place in new dir:
+
+```bash
+cd ~/DesmanExample/Example
+mkdir contigs
+python $CONCOCT/scripts/cut_up_fasta.py -c 10000 -o 0 -m Assembly/final.contigs.fa > contigs/final_contigs_c10K.fa
+```
+
+Having cut-up the contigs the next step is to map all the reads from each sample back onto them. First index the contigs with bwa:
+
+```bash
+cd contigs
+bwa index final_contigs_c10K.fa
+cd ..
+```
+
+Then perform the actual mapping you may want to put this in a shell script:
+
+```bash
+mkdir Map
+
+for file in *R1.fastq
+do 
+   
+   stub=${file%_R1.fastq}
+
+   echo $stub
+
+   file2=${stub}_R2.fastq
+
+   bwa mem -t 32 contigs/final_contigs_c10K.fa $file $file2 > Map/${stub}.sam
+done
+```
+
+Discussion point how do mappers differ from aligners? Can we list examples of each?
+
+How does (this)[https://en.wikipedia.org/wiki/Burrows%E2%80%93Wheeler_transform]  help DNA sequence analysis!
 
 ## Software installation
 
