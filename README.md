@@ -174,6 +174,71 @@ do
 done
 ```
 
+Having done this we want to get one table of annotations at the genera level for community comparisons:
+
+```
+for file in Kraken/*.kraken.report
+do
+    stub=${file%.kraken.report}
+    cat  $file | awk '$4=="G"' > $stub.genera
+done
+```
+
+And then run associated script:
+```
+./CollateK.pl Kraken > GeneraKraken.csv
+```
+
+Put in NMDS plot
+
+## Functional metagenome profiling
+
+
+## Assembly based analysis
+
+##Assembly based metagenomics analysis
+
+We are now going to perform a basic assembly based metagenomics analysis of these same samples. 
+This will involve a collection of different software programs:
+
+1. megahit: A highly efficient metagenomics assembler currently our default for most studies
+
+2. bwa: Necessary for mapping reads onto contigs
+
+3. [samtools] (http://www.htslib.org/download/): Utilities for processing mapped files
+
+4. CONCOCT: Our own contig binning algorithm
+
+5. [prodigal] (https://github.com/hyattpd/prodigal/releases/): Used for calling genes on contigs
+
+[gnu parallel] (http://www.gnu.org/software/parallel/): Used for parallelising rps-blast
+
+[standalone blast] (http://www.ncbi.nlm.nih.gov/books/NBK52640/): Needs rps-blast
+
+[COG RPS database] (ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/little_endian/): Cog databases
+
+[GFF python parser] (https://github.com/chapmanb/bcbb/tree/master/gff)
+
+#Co-assembly
+
+We begin by performing a co-assembly of these samples using a program called megahit:
+
+```
+ls Reads/*R1.fastq | tr "\n" "," | sed 's/,$//' > R1.csv
+ls Reads/*R2.fastq | tr "\n" "," | sed 's/,$//' > R2.csv
+```
+
+```
+nohup megahit -1 $(<R1.csv) -2 $(<R2.csv) -t 8 -o Assembly > megahit.out&
+```
+
+cat MetaTutorial/*R12.fasta > MetaTutorial/All_R12.fasta
+megahit -r MetaTutorial/All_R12.fasta --presets meta -o Coassembly -t 8
+We can have a look at how good the assembly was:
+
+contig-stats.pl < Coassembly/final.contigs.fa
+
+
 ## Software installation
 
 Going to make an installation directory:
@@ -258,4 +323,18 @@ cp seqtk ~/bin/
 ```
 sudo apt-get update
 sudo apt-get install python-biopython
+```
+
+9. Centrifuge
+```
+git clone https://github.com/infphilo/centrifuge.git
+```
+
+10. Megahit
+```
+git clone https://github.com/voutcn/megahit.git
+cd megahit
+make
+./megahit -1 pe_1.fq.gz -2 pe_2.fq.gz -o megahit_out
+cp megahit* ~/bin
 ```
