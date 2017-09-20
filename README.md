@@ -272,15 +272,15 @@ This will involve a collection of different software programs:
 
 5. [prodigal] (https://github.com/hyattpd/prodigal/releases/): Used for calling genes on contigs
 
-[gnu parallel] (http://www.gnu.org/software/parallel/): Used for parallelising rps-blast
+6. [gnu parallel] (http://www.gnu.org/software/parallel/): Used for parallelising rps-blast
 
-[standalone blast] (http://www.ncbi.nlm.nih.gov/books/NBK52640/): Needs rps-blast
+7. [standalone blast] (http://www.ncbi.nlm.nih.gov/books/NBK52640/): Needs rps-blast
 
-[COG RPS database] (ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/little_endian/): Cog databases
+8. [COG RPS database] (ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/little_endian/): Cog databases
 
-[GFF python parser] (https://github.com/chapmanb/bcbb/tree/master/gff)
+9. [GFF python parser] (https://github.com/chapmanb/bcbb/tree/master/gff)
 
-#Co-assembly
+### Co-assembly
 
 We begin by performing a co-assembly of these samples using a program called megahit:
 
@@ -311,6 +311,8 @@ cd Assembly
 wget https://septworkshop.s3.climb.ac.uk/final.contigs.fa
 cd ..
 ```
+
+### Read mapping
 
 Then cut up contigs and place in new dir:
 
