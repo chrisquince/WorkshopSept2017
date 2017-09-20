@@ -118,13 +118,14 @@ done
 We will use Kraken for profiling these reads but first lets convert them to interleaved fastq:
 
 ```
+mkdir ReadsSub12/
 for file in ReadsSub/*R1*fastq
 do
     
     stub=${file%_R1.fastq}
     echo $stub
-    
-    python ~/repos/WorkshopSept2017/scripts/Interleave.py $file ${stub}_R2.fastq ${stub}_R12.fastq
+    base=${file##*/}
+    python ~/repos/WorkshopSept2017/scripts/Interleave.py $file ${stub}_R2.fastq ReadsSub12/${base}_R12.fastq
     
 done
 
@@ -138,7 +139,7 @@ Discussion point what is a kmer?
 Now run kraken on the interleaved fastq:
 ```
 mkdir Kraken
-for file in ReadsSub/*R12*fastq
+for file in ReadsSub12/*R12*fastq
 do
     base=${file##*/}
     stub=${base%_R12.fastq}
@@ -204,18 +205,20 @@ Put in NMDS plot
 
 To perform functional gene profiling we will use Diamond to map against the KEGG database. 
 First we will set an environmental variable to point to our copy of the Kegg:
-
+```
 export KEGG_DB=~/Databases/keggs_database/KeggUpdate/
+```
+```
 mkdir KeggD
-for file in MetaTutorial/{C,H}*R12.fasta
+for file in ReadsSub12/*R12.fastq
 do 
    
-   stub=${file%_R12.fasta}
-   stub=${stub#MetaTutorial\/}
+   stub=${file%_R12.fastq}
+   stub=${stub#ReadsSub12\/}
    echo $stub
    if [ ! -f KeggD/${stub}.m8 ]; then
     echo "KeggD/${stub}.m8"
-    diamond blastx -d $KEGG_DB/genes/fasta/kegg_genes_dmd -q $file -p 8 -a KeggD/${stub}.dmd
+    diamond blastx -d $KEGG_DB/genes/fasta/genes.dmnd -q $file -p 8 -a KeggD/${stub}.dmd
     diamond view -a KeggD/${stub}.dmd -o KeggD/${stub}.m8
    fi
 done
@@ -317,15 +320,15 @@ cd ..
 Then cut up contigs and place in new dir:
 
 ```bash
-cd ~/DesmanExample/Example
-mkdir contigs
-python $CONCOCT/scripts/cut_up_fasta.py -c 10000 -o 0 -m Assembly/final.contigs.fa > contigs/final_contigs_c10K.fa
+
+
+python $CONCOCT/scripts/cut_up_fasta.py -c 10000 -o 0 -m Assembly/final.contigs.fa > Assembly/final_contigs_c10K.fa
 ```
 
 Having cut-up the contigs the next step is to map all the reads from each sample back onto them. First index the contigs with bwa:
 
 ```bash
-cd contigs
+cd Assembly
 bwa index final_contigs_c10K.fa
 cd ..
 ```
@@ -335,22 +338,57 @@ Then perform the actual mapping you may want to put this in a shell script:
 ```bash
 mkdir Map
 
-for file in *R1.fastq
+for file in ./ReadsSub/*R1.fastq
 do 
    
    stub=${file%_R1.fastq}
-
+   name=${stub##*/}
+   
    echo $stub
 
    file2=${stub}_R2.fastq
 
-   bwa mem -t 32 contigs/final_contigs_c10K.fa $file $file2 > Map/${stub}.sam
+   bwa mem -t 8 Assembly/final_contigs_c10K.fa $file $file2 > Map/${name}.sam
 done
 ```
 
 Discussion point how do mappers differ from aligners? Can we list examples of each?
 
 How does (this)[https://en.wikipedia.org/wiki/Burrows%E2%80%93Wheeler_transform]  help DNA sequence analysis!
+
+Discussion point nohup vs screen for long running jobs.
+
+
+And calculate coverages:
+
+```
+python $DESMAN/scripts/Lengths.py -i Assembly/final_contigs_c10K.fa > Assembly/Lengths.txt
+
+for file in Map/*.sam
+do
+    stub=${file%.sam}
+    stub2=${stub#Map\/}
+    echo $stub  
+    samtools view -h -b -S $file > ${stub}.bam
+    samtools view -b -F 4 ${stub}.bam > ${stub}.mapped.bam
+    samtools sort -m 1000000000 ${stub}.mapped.bam -o ${stub}.mapped.sorted.bam
+    bedtools genomecov -ibam ${stub}.mapped.sorted.bam -g Assembly/Lengths.txt > ${stub}_cov.txt
+done
+```
+Collate coverages together:
+
+```
+for i in Map/*_cov.txt 
+do 
+   echo $i
+   stub=${i%_cov.txt}
+   stub=${stub#Map\/}
+   echo $stub
+   awk -F"\t" '{l[$1]=l[$1]+($2 *$3);r[$1]=$4} END {for (i in l){print i","(l[i]/r[i])}}' $i > Map/${stub}_cov.csv&
+done
+
+$DESMAN/scripts/Collate.pl Map > Coverage.csv
+```
 
 ## Software installation
 
@@ -563,4 +601,28 @@ These are both Python 2.7 and require the following modules:
         export CONCOCT=~/repos/CONCOCT
         export DESMAN=~/repos/DESMAN
     ```
-    
+20. Hmmer3
+```
+wget http://eddylab.org/software/hmmer3/3.1b2/hmmer-3.1b2-linux-intel-x86_64.tar.gz
+```
+
+21. [dbCAN](http://csbl.bmb.uga.edu/dbCAN/)
+** if you want to run dbCAN CAZyme annotation on your local linux computer, do the following:
+** 1. download dbCAN-fam-HMMs.txt, hmmscan-parser.sh 
+** 2. download HMMER 3.0 package [hmmer.org] and install it properly
+** 3. format HMM db: hmmpress dbCAN-fam-HMMs.txt
+** 4. run: hmmscan --domtblout yourfile.out.dm dbCAN-fam-HMMs.txt yourfile > yourfile.out
+** 5. run: sh hmmscan-parser.sh yourfile.out.dm > yourfile.out.dm.ps (if alignment > 80aa, use E-value < 1e-5, otherwise use E-value < 1e-3; covered fraction of HMM > 0.3)
+Cols in yourfile.out.dm.ps:
+1. Family HMM
+2. HMM length
+3. Query ID
+4. Query length
+5. E-value (how similar to the family HMM)
+6. HMM start
+7. HMM end
+8. Query start
+9. Query end
+10. Coverage
+** About what E-value and Coverage cutoff thresholds you should use (in order to further parse yourfile.out.dm.ps file), we have done some evaluation analyses using arabidopsis, rice, Aspergillus nidulans FGSC A4, Saccharomyces cerevisiae S288c and Escherichia coli K-12 MG1655, Clostridium thermocellum ATCC 27405 and Anaerocellum thermophilum DSM 6725. Our suggestion is that for plants, use E-value < 1e-23 and coverage > 0.2; for bacteria, use E-value < 1e-18 and coverage > 0.35; and for fungi, use E-value < 1e-17 and coverage > 0.45.
+** We have also performed evaluation for the five CAZyme classes separately, which suggests that the best threshold varies for different CAZyme classes (please see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4132414/ for details). Basically to annotate GH proteins, one should use a very relax coverage cutoff or the sensitivity will be low (Supplementary Tables S4 and S9); (ii) to annotate CE families a very stringent E-value cutoff and coverage cutoff should be used; otherwise the precision will be very low due to a very high false positive rate (Supplementary Tables S5 and S10)
