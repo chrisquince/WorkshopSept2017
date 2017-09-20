@@ -222,12 +222,14 @@ do
     diamond view -a KeggD/${stub}.dmd -o KeggD/${stub}.m8
    fi
 done
+```
 This is a slow process even using the very efficient Diamond aligner. We recommend therefore stopping the above process and copying across the prerun samples:
-
+```
 rm -r KeggD
 cp -r ~/Archive/KeggD .
+```
 Having mapped reads to the KEGG genes we can collate these into ortholog coverages:
-
+```
 for file in KeggD/*.m8
 do
     stub=${file%.m8}
@@ -237,8 +239,9 @@ do
     python ~/bin/CalcKOCov.py $file $KEGG_DB/ko_genes_length.csv $KEGG_DB/genes/ko/ko_genes.list > ${stub}_ko_cov.csv
 
 done
+```
 We collate these into a sample table:
-
+```
 mkdir FuncResults
 Collate.pl KeggD _ko_cov.csv KeggD/*_ko_cov.csv > FuncResults/ko_cov.csv
 and also KEGG modules:
@@ -250,13 +253,11 @@ do
     echo $stub
     python ~/bin/MapKO.py $KEGG_DB/genes/ko/ko_module.list $file > ${stub}_mod_cov.csv 
 done
+```
 Collate those across samples:
-
+```
 Collate.pl KeggD _mod_cov.csv KeggD/*_mod_cov.csv > FuncResults/mod_cov.csv
-It turns out that neither the Kegg orthologs or modules are significant between the two groups:
-
-SigTest.R -c FuncResults/ko_cov.csv -m MetaTutorial/Meta.csv
-SigTest.R -c FuncResults/mod_cov.csv -m MetaTutorial/Meta.csv
+```
 
 
 
