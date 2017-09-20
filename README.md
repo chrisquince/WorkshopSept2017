@@ -200,12 +200,64 @@ And then run associated script:
 
 Put in NMDS plot
 
-## Functional metagenome profiling
+## Functional gene profiling
+
+To perform functional gene profiling we will use Diamond to map against the KEGG database. 
+First we will set an environmental variable to point to our copy of the Kegg:
+
+export KEGG_DB=~/Databases/keggs_database/KeggUpdate/
+mkdir KeggD
+for file in MetaTutorial/{C,H}*R12.fasta
+do 
+   
+   stub=${file%_R12.fasta}
+   stub=${stub#MetaTutorial\/}
+   echo $stub
+   if [ ! -f KeggD/${stub}.m8 ]; then
+    echo "KeggD/${stub}.m8"
+    diamond blastx -d $KEGG_DB/genes/fasta/kegg_genes_dmd -q $file -p 8 -a KeggD/${stub}.dmd
+    diamond view -a KeggD/${stub}.dmd -o KeggD/${stub}.m8
+   fi
+done
+This is a slow process even using the very efficient Diamond aligner. We recommend therefore stopping the above process and copying across the prerun samples:
+
+rm -r KeggD
+cp -r ~/Archive/KeggD .
+Having mapped reads to the KEGG genes we can collate these into ortholog coverages:
+
+for file in KeggD/*.m8
+do
+    stub=${file%.m8}
+
+    echo $stub
+    
+    python ~/bin/CalcKOCov.py $file $KEGG_DB/ko_genes_length.csv $KEGG_DB/genes/ko/ko_genes.list > ${stub}_ko_cov.csv
+
+done
+We collate these into a sample table:
+
+mkdir FuncResults
+Collate.pl KeggD _ko_cov.csv KeggD/*_ko_cov.csv > FuncResults/ko_cov.csv
+and also KEGG modules:
+
+for file in KeggD/*ko_cov.csv
+do
+    stub=${file%_ko_cov.csv}
+
+    echo $stub
+    python ~/bin/MapKO.py $KEGG_DB/genes/ko/ko_module.list $file > ${stub}_mod_cov.csv 
+done
+Collate those across samples:
+
+Collate.pl KeggD _mod_cov.csv KeggD/*_mod_cov.csv > FuncResults/mod_cov.csv
+It turns out that neither the Kegg orthologs or modules are significant between the two groups:
+
+SigTest.R -c FuncResults/ko_cov.csv -m MetaTutorial/Meta.csv
+SigTest.R -c FuncResults/mod_cov.csv -m MetaTutorial/Meta.csv
 
 
-## Assembly based analysis
 
-##Assembly based metagenomics analysis
+## Assembly based metagenomics analysis
 
 We are now going to perform a basic assembly based metagenomics analysis of these same samples. 
 This will involve a collection of different software programs:
@@ -243,6 +295,7 @@ nohup megahit -1 $(<R1.csv) -2 $(<R2.csv) -t 8 -o Assembly > megahit.out&
 
 cat MetaTutorial/*R12.fasta > MetaTutorial/All_R12.fasta
 megahit -r MetaTutorial/All_R12.fasta --presets meta -o Coassembly -t 8
+
 We can have a look at how good the assembly was:
 
 contig-stats.pl < Coassembly/final.contigs.fa
@@ -411,5 +464,52 @@ cd Installation
     wget http://github.com/bbuchfink/diamond/releases/download/v0.8.31/diamond-linux64.tar.gz
     tar xzf diamond-linux64.tar.gz
     cp diamond ~/bin/
+    ```
+    
+19. We then install both the [CONCOCT](https://github.com/BinPro/CONCOCT) and 
+[DESMAN]((https://github.com/chrisquince/DESMAN)) repositories. 
+These are both Python 2.7 and require the following modules:
+    ```
+        sudo apt-get -y install python-pip
+        sudo pip install cython numpy scipy biopython pandas pip scikit-learn pysam bcbio-gff
+    ```
+
+    They also need the GSL
+    ```
+        sudo apt-get install libgsl2-dev
+        sudo apt-get install libgsl-dev
+    ```
+
+    Then install the repos and set their location in your .bashrc:
+    ```
+    cd ~/repos
+
+    git clone https://github.com/BinPro/CONCOCT.git
+
+    cd CONCOCT
+    
+    git fetch
+    
+    git checkout SpeedUp_Mp
+    
+    sudo python ./setup.py install
+    
+    ```
+    Then DESMAN
+    ```
+        cd ~/repos
+
+        git clone https://github.com/chrisquince/DESMAN.git
+
+        cd DESMAN
+
+        sudo python ./setup.py install
+    ```
+
+    Then add this lines to .bashrc:
+
+    ```
+        export CONCOCT=~/repos/CONCOCT
+        export DESMAN=~/repos/DESMAN
     ```
     
