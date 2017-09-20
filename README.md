@@ -1,10 +1,19 @@
 # Mini-metagenome Workshop September 25th 2017
 
+## Getting started
+
 Begin by logging into VM:
 
 ```
 ssh -X ubuntu@137.205.69.49
 ```
+
+Add this line to .profile using vi:
+```
+PATH=$HOME/repos/WorkshopSept2017/scripts:$PATH
+```
+
+Discussion point environment variables and configuration files.
 
 Clone in the workshop repos:
 
@@ -101,8 +110,8 @@ do
     base=${file##*/}
     stub=${base%_R1.fastq}
     echo $stub
-    seqtk sample -s100 $file 1000000 > ReadsSub/${stub}_Sub_R1.fastq
-    seqtk sample -s100 Reads/${stub}_R2.fastq 1000000 > ReadsSub/${stub}_Sub_R2.fastq
+    seqtk sample -s100 $file 1000000 > ReadsSub/${stub}_Sub_R1.fastq&
+    seqtk sample -s100 Reads/${stub}_R2.fastq 1000000 > ReadsSub/${stub}_Sub_R2.fastq&
 done
 ```
 
@@ -248,93 +257,159 @@ cd Installation
 ```
 
 1. Install R on the VM [R-base](https://www.r-bloggers.com/how-to-install-r-on-linux-ubuntu-16-04-xenial-xerus/):
-
-```
-sudo echo "deb http://cran.rstudio.com/bin/linux/ubuntu xenial/" | sudo tee -a /etc/apt/sources.list
-gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9
-sudo apt-get update
-sudo apt-get install r-base r-base-dev
-```
-
-and now some R packages:
-```
-sudo R
-install.packages("ggplot2")
-```
+    ```
+    sudo echo "deb http://cran.rstudio.com/bin/linux/ubuntu xenial/" | sudo tee -a /etc/apt/sources.list
+    gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9
+    sudo apt-get update
+    sudo apt-get install r-base r-base-dev
+    ```
+    and now some R packages:
+    ```
+    sudo R
+    install.packages("ggplot2")
+    ```
 
 2. Install FastQC
-```
-sudo apt-get install fastqc
-```
-Requires a bug fix:
-```
-cd ~/Installation
-sudo mkdir /etc/fastqc
-wget https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.11.5.zip
-unzip fastqc_v0.11.5.zip
-sudo cp -r FastQC /etc/fastqc
-```
+    ```
+    sudo apt-get install fastqc
+    ```
+    Requires a bug fix:
+    ```
+    cd ~/Installation
+    sudo mkdir /etc/fastqc
+    wget https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.11.5.zip
+    unzip fastqc_v0.11.5.zip
+    sudo cp -r FastQC /etc/fastqc
+    ```
 
 3. Install viewer evince:
-```
-sudo apt install evince
-```
+    ```
+    sudo apt install evince
+    ```
 
 4. Install html viewer firefox:
-```
-sudo apt install firefox
-```
+    ```
+    sudo apt install firefox
+    ```
 
 5. Install Metaphlan2:
-```
-sudo apt install mercurial
-cd ~/Installation
-hg clone https://bitbucket.org/biobakery/metaphlan2
-```
+    ```
+    sudo apt install mercurial
+    cd ~/Installation
+    hg clone https://bitbucket.org/biobakery/metaphlan2
+    ```
 
-Requires python numpy:
-```
-sudo apt-get install python-pip
-sudo pip install numpy scipy
-``
-and also [BowTie2](https://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.3.3)
+    Requires python numpy:
+    ```
+    sudo apt-get install python-pip
+    sudo pip install numpy scipy
+    ``
+    and also [BowTie2](https://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.3.3)
 
-6. Install Kraken
-
-Get the mini-kraken database:
-```
-wget http://ccb.jhu.edu/software/kraken/dl/minikraken.tgz
-```
-
-```
-git clone https://github.com/DerrickWood/kraken.git
-```
+6. Install Kraken. Get the mini-kraken database:
+    ```
+    wget http://ccb.jhu.edu/software/kraken/dl/minikraken.tgz   
+    git clone https://github.com/DerrickWood/kraken.git
+    ```
 
 7. Seqtk
-
-```
-cd ~/Installation
-git clone https://github.com/lh3/seqtk.git
-cd seqtk; make
-cp seqtk ~/bin/
-```
+    ```
+    cd ~/Installation
+    git clone https://github.com/lh3/seqtk.git
+    cd seqtk; make
+    cp seqtk ~/bin/
+    ```
 
 8. Biopython
-```
-sudo apt-get update
-sudo apt-get install python-biopython
-```
+    ```
+    sudo apt-get update
+    sudo apt-get install python-biopython
+    ```
 
 9. Centrifuge
-```
-git clone https://github.com/infphilo/centrifuge.git
-```
+    ```
+    git clone https://github.com/infphilo/centrifuge.git
+    ```
 
 10. Megahit
-```
-git clone https://github.com/voutcn/megahit.git
-cd megahit
-make
-./megahit -1 pe_1.fq.gz -2 pe_2.fq.gz -o megahit_out
-cp megahit* ~/bin
-```
+    ```
+    git clone https://github.com/voutcn/megahit.git
+    cd megahit
+    make
+    cp megahit* ~/bin
+    ```
+11. [bwa](https://github.com/lh3/bwa): Necessary for mapping reads onto contigs
+    ```
+    cd ~/repos
+    git clone https://github.com/lh3/bwa.git
+    cd bwa; make
+    cp bwa ~/bin
+    ```
+
+12. [bam-readcount](https://github.com/genome/bam-readcount): Used to get per sample base frequencies at each position
+
+    ```
+    cd ~/repos
+    sudo apt-get install build-essential git-core cmake zlib1g-dev libncurses-dev patch
+    git clone https://github.com/genome/bam-readcount.git
+    mkdir bam-readcount-build
+    cd bam-readcount-build/
+    cmake ../bam-readcount
+    make
+    cp bin/bam-readcount ~/bin/
+    ```
+
+13. [samtools](http://www.htslib.org/download/): Utilities for processing mapped files. The version available through apt will *NOT* work instead...
+
+    ```
+    cd ~/repos
+    wget https://github.com/samtools/samtools/releases/download/1.3.1/samtools-1.3.1.tar.bz2
+    tar xvfj samtools-1.3.1.tar.bz2 
+    cd samtools-1.3.1/ 
+    sudo apt-get install libcurl4-openssl-dev libssl-dev
+    ./configure --enable-plugins --enable-libcurl --with-plugin-path=$PWD/htslib-1.3.1
+    make all plugins-htslib
+    cp samtools ~/bin/  
+    ```
+
+14. [bedtools](http://bedtools.readthedocs.io/en/latest/): Utilities for working with read mappings
+
+    ```
+    sudo apt-get install bedtools
+    ```
+
+15. [prodigal](https://github.com/hyattpd/prodigal/releases/): Used for calling genes on contigs
+
+    ```
+    wget https://github.com/hyattpd/Prodigal/releases/download/v2.6.3/prodigal.linux 
+    cp prodigal.linux ~/bin/prodigal
+    chmod +rwx ~/bin/prodigal
+    ```
+
+16. [gnu parallel](http://www.gnu.org/software/parallel/): Used for parallelising rps-blast
+
+    ```
+    sudo apt-get install parallel
+    ```
+
+17. [standalone blast](http://www.ncbi.nlm.nih.gov/books/NBK52640/): Need a legacy blast 2.5.0 which we provide as a download:
+
+    ```
+    wget https://desmandatabases.s3.climb.ac.uk/ncbi-blast-2.5.0+-x64-linux.tar.gz
+    
+    tar -xvzf ncbi-blast-2.5.0+-x64-linux.tar.gz
+    
+    cp ncbi-blast-2.5.0+/bin/* ~/bin
+    ```
+    
+18. [diamond](https://github.com/bbuchfink/diamond): BLAST compatible accelerated aligner
+
+    ```
+    cd ~/repos
+    mkdir diamond
+    cd diamond
+    wget http://github.com/bbuchfink/diamond/releases/download/v0.8.31/diamond-linux64.tar.gz
+    tar xzf diamond-linux64.tar.gz
+    cp diamond ~/bin/
+    ```
+    
