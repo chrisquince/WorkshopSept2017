@@ -234,11 +234,7 @@ do
    fi
 done
 ```
-This is a slow process even using the very efficient Diamond aligner. We recommend therefore stopping the above process and copying across the prerun samples:
-```
-rm -r KeggD
-cp -r ~/Archive/KeggD .
-```
+
 Having mapped reads to the KEGG genes we can collate these into ortholog coverages:
 ```
 for file in KeggD/*.m8
@@ -247,10 +243,17 @@ do
 
     echo $stub
     
-    python ~/bin/CalcKOCov.py $file $KEGG_DB/ko_genes_length.csv $KEGG_DB/genes/ko/ko_genes.list > ${stub}_ko_cov.csv
+    python ~/repos/WorkshopSept2017/scripts/CalcKOCov.py $file $KEGG_DB/ko_genes_length.csv $KEGG_DB/genes/ko/ko_genes.list > ${stub}_ko_cov.csv
 
 done
 ```
+
+Note this script uses a hard coded read length of 150 nt or 50 aa.
+
+Discussion point what is coverage?
+
+Discussion point, what pipelines exist for doing this, HumanN? Could we use kmers for functional profiling?
+
 We collate these into a sample table:
 ```
 mkdir FuncResults
