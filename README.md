@@ -1,14 +1,11 @@
 # Mini-metagenome Workshop September 25-27th 2017
 
-# Table of Contents
-1. [Getting started](#example)
-2. [Taxonomic profiling](#example2)
-3. [Third Example](#third-example)
+## Table of Contents
+1. [Getting started](#gettingstarted)
+2. [Taxonomic profiling](#taxonomicprofiling)
+3. [Functional profiling](#functionalprofiling)
 
-
-
-
-
+<a name="gettingstarted"/>
 ## Getting started
 
 
@@ -107,6 +104,7 @@ ls
 firefox S102_R1_fastqc.html 
 ```
 
+<a name="taxonomicprofiling"/>
 ## Taxonomic profiling
 
 For the taxonomic profiling we are going to subsample the fastq files to 1 million reads each 
@@ -211,6 +209,7 @@ And then run associated script:
 
 Put in NMDS plot
 
+<a name="functionalprofiling"/>
 ## Functional gene profiling
 
 To perform functional gene profiling we will use Diamond to map against the KEGG database. 
