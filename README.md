@@ -254,12 +254,16 @@ Discussion point what is coverage?
 
 Discussion point, what pipelines exist for doing this, HumanN? Could we use kmers for functional profiling?
 
+Discussion point, what is the [KEGG](http://www.genome.jp/kegg/pathway.html)
+
 We collate these into a sample table:
 ```
 mkdir FuncResults
-Collate.pl KeggD _ko_cov.csv KeggD/*_ko_cov.csv > FuncResults/ko_cov.csv
-and also KEGG modules:
+CollateKO.pl KeggD > FuncResults/ko_cov.csv
+```
 
+and also KEGG modules:
+```
 for file in KeggD/*ko_cov.csv
 do
     stub=${file%_ko_cov.csv}
