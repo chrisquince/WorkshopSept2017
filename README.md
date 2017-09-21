@@ -1,6 +1,16 @@
-# Mini-metagenome Workshop September 25th 2017
+# Mini-metagenome Workshop September 25-27th 2017
+
+# Table of Contents
+1. [Getting started](#example)
+2. [Taxonomic profiling](#example2)
+3. [Third Example](#third-example)
+
+
+
+
 
 ## Getting started
+
 
 Begin by logging into VM:
 
@@ -33,7 +43,7 @@ mkdir Reads
 cd Reads
 ```
 
-## Downloading the raw sequence reads
+### Downloading the raw sequence reads
 
 and download the anaerobic digester sequences:
 ```
@@ -50,7 +60,7 @@ done <  ForwardURL.txt
 
 Can you work out how to download the reverse reads?
 
-## Fastq file format
+### Fastq file format
 
 The reads are stored as pairs of fastq files.
 ```
@@ -218,8 +228,7 @@ do
    echo $stub
    if [ ! -f KeggD/${stub}.m8 ]; then
     echo "KeggD/${stub}.m8"
-    diamond blastx -d $KEGG_DB/genes/fasta/genes.dmnd -q $file -p 8 -a KeggD/${stub}.dmd
-    diamond view -a KeggD/${stub}.dmd -o KeggD/${stub}.m8
+    diamond blastx -d $KEGG_DB/genes/fasta/genes.dmnd -q $file -p 8 -o KeggD/${stub}.m8
    fi
 done
 ```
@@ -385,10 +394,67 @@ do
    stub=${i%_cov.txt}
    stub=${stub#Map\/}
    echo $stub
-   awk -F"\t" '{l[$1]=l[$1]+($2 *$3);r[$1]=$4} END {for (i in l){print i","(l[i]/r[i])}}' $i > Map/${stub}_cov.csv&
+   awk -F"\t" '{l[$1]=l[$1]+($2 *$3);r[$1]=$4} END {for (i in l){print i","(l[i]/r[i])}}' $i > Map/${stub}_cov.csv
 done
 
 $DESMAN/scripts/Collate.pl Map > Coverage.csv
+```
+
+Now we can run CONCOCT:
+```
+
+    mkdir Concoct
+
+    mv Coverage.csv Concoct
+
+    cd Concoct
+
+    tr "," "\t" < Coverage.csv > Coverage.tsv
+
+    concoct --coverage_file Coverage.tsv --composition_file ../Assembly/final_contigs_c10K.fa -t 8 
+
+```
+
+Find genes using prodigal:
+```
+    cd ..
+    
+    mkdir Annotate
+
+    cd Annotate/
+
+    python $DESMAN/scripts/LengthFilter.py ../Assembly/final_contigs_c10K.fa -m 1000 >     final_contigs_gt1000_c10K.fa
+
+    prodigal -i final_contigs_gt1000_c10K.fa -a final_contigs_gt1000_c10K.faa -d     final_contigs_gt1000_c10K.fna  -f gff -p meta -o final_contigs_gt1000_c10K.gff > p.out
+```
+
+Assign COGs change the -c flag which sets number of parallel processes appropriately:
+```
+    export COGSDB_DIR=~/Databases/rpsblast_db
+    $CONCOCT/scripts/RPSBLAST.sh -f final_contigs_gt1000_c10K.faa -p -c 8 -r 1
+```
+
+We are also going to refine the output using single-core gene frequencies. First we calculate scg frequencies on the CONCOCT clusters:
+```
+cd ../Concoct
+python $CONCOCT/scripts/COG_table.py -b ../Annotate/final_contigs_gt1000_c10K.out  -m $CONCOCT/scgs/scg_cogs_min0.97_max1.03_unique_genera.txt -c clustering_gt1000.csv  --cdd_cog_file $CONCOCT/scgs/cdd_to_cog.tsv > clustering_gt1000_scg.tsv
+```
+
+Then we need to manipulate the output file formats slightly:
+```
+sed '1d' clustering_gt1000.csv > clustering_gt1000_R.csv
+cut -f1,3- < clustering_gt1000_scg.tsv | tr "\t" "," > clustering_gt1000_scg.csv
+$CONCOCT/scripts/Sort.pl < clustering_gt1000_scg.csv > clustering_gt1000_scg_sort.csv
+```
+
+Then we can run the refinement step of CONCOCT:
+```
+concoct_refine clustering_gt1000_R.csv original_data_gt1000.csv clustering_gt1000_scg_sort.csv > concoct_ref.out
+```
+
+This should result in 20 clusters with 75% single copy copy SCGs:
+```
+python $CONCOCT/scripts/COG_table.py -b ../Annotate/final_contigs_gt1000_c10K.out  -m $CONCOCT/scgs/scg_cogs_min0.97_max1.03_unique_genera.txt -c clustering_refine.csv  --cdd_cog_file $CONCOCT/scgs/cdd_to_cog.tsv > clustering_refine_scg.tsv
 ```
 
 ## Software installation
