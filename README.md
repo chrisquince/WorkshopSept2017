@@ -522,6 +522,8 @@ This should result in 20 clusters with 75% single copy copy SCGs:
 python $CONCOCT/scripts/COG_table.py -b ../Annotate/final_contigs_gt1000_c10K.out  -m $CONCOCT/scgs/scg_cogs_min0.97_max1.03_unique_genera.txt -c clustering_refine.csv  --cdd_cog_file $CONCOCT/scgs/cdd_to_cog.tsv > clustering_refine_scg.tsv
 ```
 
+<a name="MAGs"/>
+
 ## Metagenome assembled genomes (MAGs)
 
 First let us look at the cluster completeness:
