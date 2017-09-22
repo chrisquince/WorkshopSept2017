@@ -215,8 +215,12 @@ There is a clear shift in genera level structure over time but no association wi
 We can generate this plot either locally or on the server by:
 
 ```
-Rscript 
+Rscript ~/repos/WorkshopSept2017/RAnalysis/GeneraKNMDS.R 
 ```
+
+Discussion points:
+1. Non-metric multidimensional scaling
+2. Multivariate permutational ANOVA
 
 <a name="functionalprofiling"/>
 
