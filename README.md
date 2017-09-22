@@ -8,7 +8,7 @@
 4.1 [Coassembly](#coassembly)
 4.2 [Read mapping](#readmapping)
 4.3 [Contig binning](#binning)
-4.4 [Bin evaluation](#binevaluation)
+5 [MAGs] (#mags)
 
 <a name="gettingstarted"/>
 
@@ -19,6 +19,11 @@ Begin by logging into VM:
 
 ```
 ssh -X ubuntu@137.205.69.49
+```
+
+May need this:
+```
+source .profile 
 ```
 
 Add this line to .profile using vi:
@@ -512,6 +517,23 @@ This should result in 20 clusters with 75% single copy copy SCGs:
 ```
 python $CONCOCT/scripts/COG_table.py -b ../Annotate/final_contigs_gt1000_c10K.out  -m $CONCOCT/scgs/scg_cogs_min0.97_max1.03_unique_genera.txt -c clustering_refine.csv  --cdd_cog_file $CONCOCT/scgs/cdd_to_cog.tsv > clustering_refine_scg.tsv
 ```
+
+## MAGs
+
+First let us look at the cluster completeness:
+```
+$CONCOCT/scripts/COGPlot.R -s clustering_refine_scg.tsv -o clustering_refine_scg.pdf
+```
+
+Then we calculate coverage of each cluster/MAG in each sample.
+```
+
+```
+
+How well does this correlate with time/replicates.
+
+![SCGs](Figures/clustering_refine_scg.png) 
+
 
 ## Software installation
 
