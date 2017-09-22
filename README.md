@@ -2,12 +2,16 @@
 
 ## Table of Contents
 1. [Getting started](#gettingstarted)
+
 2. [Taxonomic profiling](#taxonomicprofiling)
+
 3. [Functional profiling](#functionalprofiling)
+
 4. [Assembly based metagenomics analysis](#assembly)
-4.1 [Coassembly](#coassembly)
-4.2 [Read mapping](#readmapping)
-4.3 [Contig binning](#binning)
+* [Coassembly](#coassembly)
+* [Read mapping](#readmapping)
+* [Contig binning](#binning)
+
 5. [MAGs] (#mags)
 
 <a name="gettingstarted"/>
