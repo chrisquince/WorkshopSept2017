@@ -4,6 +4,11 @@
 1. [Getting started](#gettingstarted)
 2. [Taxonomic profiling](#taxonomicprofiling)
 3. [Functional profiling](#functionalprofiling)
+4. [Assembly based metagenomics analysis](#assembly)
+4.1 [Coassembly](#coassembly)
+4.2 [Read mapping](#readmapping)
+4.3 [Contig binning](#binning)
+4.4 [Bin evaluation](#binevaluation)
 
 <a name="gettingstarted"/>
 
@@ -29,6 +34,11 @@ Clone in the workshop repos:
 mkdir ~/repos
 cd repos
 git clone https://github.com/chrisquince/WorkshopSept2017.git
+```
+
+and another one we will need:
+```
+git clone https://github.com/chrisquince/MAGAnalysis.git
 ```
 
 Then we make ourselves a Projects directory:
@@ -288,11 +298,25 @@ done
 
 Collate those across samples:
 ```
-CollateMod.pl KeggD > FuncResults/mod_cov.csv
+CollateMod.pl KeggD > CollateMod.csv
+mv CollateMod.csv FuncResults
 ```
 
-What about module names?
+What about module names? My former PDRA (Umer Ijaz) has a nice one liner for this:
 
+```
+cd FuncResults
+awk -F"," 'NR>1{print $1}' CollateMod.csv | xargs -I {} curl -s http://rest.kegg.jp/find/module/{} > ModNames.txt
+cd ..
+```
+
+We can view modules as multivariate data just like the genera relative frequencies. Is there a stronger or weaker relationship between time and module abundance than there was 
+for the genera abundances?
+
+![Modules](Figures/Modules.png)
+
+
+<a name="assembly"/>
 
 ## Assembly based metagenomics analysis
 
@@ -316,6 +340,8 @@ This will involve a collection of different software programs:
 8. [COG RPS database] (ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/little_endian/): Cog databases
 
 9. [GFF python parser] (https://github.com/chapmanb/bcbb/tree/master/gff)
+
+<a name="coassembly"/>
 
 ### Co-assembly
 
@@ -348,6 +374,8 @@ cd Assembly
 wget https://septworkshop.s3.climb.ac.uk/final.contigs.fa
 cd ..
 ```
+
+<a name="readmapping"/>
 
 ### Read mapping
 
@@ -423,6 +451,10 @@ done
 
 $DESMAN/scripts/Collate.pl Map > Coverage.csv
 ```
+
+<a name="binnning"/>
+
+## Contig binning
 
 Now we can run CONCOCT:
 ```
