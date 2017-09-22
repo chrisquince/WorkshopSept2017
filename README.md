@@ -210,7 +210,7 @@ And then run associated script:
 ```
 There is a clear shift in genera level structure over time but no association with replicate.
 
-![Kraken Figure1](Figures/GeneraK_NMDS.pdf)
+![Kraken Genera NMDS](Figures/GeneraK_NMDS.pdf)
 
 We can generate this plot either locally or on the server by:
 
