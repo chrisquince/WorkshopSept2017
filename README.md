@@ -535,12 +535,16 @@ Discussion point what is a MAG?
 
 Then we calculate coverage of each cluster/MAG in each sample.
 ```
-
+sed '1d' clustering_refine.csv > clustering_refineR.csv
+python $DESMAN/scripts/ClusterMeanCov.py Coverage.csv clustering_refineR.csv ../Assembly/final_contigs_c10K.fa > clustering_refine_cov.csv
+sed 's/Map\///g' clustering_refine_cov.csv > clustering_refine_covR.csv
 ```
+
+Discussion point, how do we calculate cluster coverages?
 
 How well does this correlate with time/replicates.
 
-
+![ClusterCov](Figures/ClusterCovNMDS.png) 
 
 
 ## Software installation
