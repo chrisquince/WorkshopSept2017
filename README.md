@@ -452,7 +452,7 @@ done
 $DESMAN/scripts/Collate.pl Map > Coverage.csv
 ```
 
-<a name="binnning"/>
+<a name="binning"/>
 
 ## Contig binning
 
