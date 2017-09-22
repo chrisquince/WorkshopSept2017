@@ -12,7 +12,7 @@
 * [Read mapping](#readmapping)
 * [Contig binning](#binning)
 
-5. [MAGs] (#mags)
+5. [MAGs](#mags)
 
 <a name="gettingstarted"/>
 
