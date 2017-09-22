@@ -45,9 +45,10 @@ cd repos
 git clone https://github.com/chrisquince/WorkshopSept2017.git
 ```
 
-and another one we will need:
+and another two we will need:
 ```
 git clone https://github.com/chrisquince/MAGAnalysis.git
+git clone https://github.com/chrisquince/StrainMetaSim.git
 ```
 
 Then we make ourselves a Projects directory:
@@ -549,6 +550,37 @@ How well does this correlate with time/replicates.
 ![ClusterCov](Figures/ClusterCovNMDS.png) 
 
 
+### Annotate MAGs
+
+First lets label COGs on genes:
+```
+cd ~/Projects/AD/Annotate
+python $DESMAN/scripts/ExtractCogs.py -b final_contigs_gt1000_c10K.out --cdd_cog_file $CONCOCT/scgs/cdd_to_cog.tsv -g final_contigs_gt1000_c10K.gff > final_contigs_gt1000_c10K.cogs
+```
+
+Discussion point what is a COG?
+
+Then genes:
+```
+python $DESMAN/scripts/ExtractGenes.py -g final_contigs_gt1000_c10K.gff > final_contigs_gt1000_c10K.genes
+cd ..
+```
+
+Return to the analysis directory and create a new directory to bin the contigs into:
+
+```
+mkdir Split
+cd Split
+$DESMAN/scripts/SplitClusters.pl ../Annotate/final_contigs_gt1000_c10K.fa ../Concoct/clustering_refine.csv
+$METASIM/scripts/SplitCOGs.pl ../Annotate/final_contigs_gt1000_c10K.cogs ../Concoct/clustering_refine.csv
+$METASIM/scripts/SplitGenes.pl ../Annotate/final_contigs_gt1000_c10K.genes ../Concoct/clustering_refine.csv
+cd ..
+```
+
+```
+cp ~/repos/MAGAnalysis/scripts/Prodigal.sh .
+./Prodigal.sh 2> Prodigal.out
+```
 ## Software installation
 
 Going to make an installation directory:
