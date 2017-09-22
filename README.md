@@ -208,8 +208,15 @@ And then run associated script:
 ```
 ./CollateK.pl Kraken > GeneraKraken.csv
 ```
+There is a clear shift in genera level structure over time but no association with replicate.
 
-Put in NMDS plot
+![Kraken Figure1](Figures/GeneraK_NMDS.pdf)
+
+We can generate this plot either locally or on the server by:
+
+```
+Rscript 
+```
 
 <a name="functionalprofiling"/>
 
@@ -243,18 +250,20 @@ do
 
     echo $stub
     
-    python ~/repos/WorkshopSept2017/scripts/CalcKOCov.py $file $KEGG_DB/ko_genes_length.csv $KEGG_DB/genes/ko/ko_genes.list > ${stub}_ko_cov.csv
+    python ~/bin/CalcKOCov.py $file $KEGG_DB/ko_genes_length.csv $KEGG_DB/genes/ko/ko_genes.list > ${stub}_ko_cov.csv
 
 done
 ```
 
 Note this script uses a hard coded read length of 150 nt or 50 aa.
 
-Discussion point what is coverage?
+Discussion points:
 
-Discussion point, what pipelines exist for doing this, HumanN? Could we use kmers for functional profiling?
+1. What is coverage?
 
-Discussion point, what is the [KEGG](http://www.genome.jp/kegg/pathway.html)
+2. What pipelines exist for doing this, HumanN? Could we use kmers for functional profiling?
+
+3. What is the [KEGG](http://www.genome.jp/kegg/pathway.html)
 
 We collate these into a sample table:
 ```
@@ -272,11 +281,13 @@ do
     python ~/bin/MapKO.py $KEGG_DB/genes/ko/ko_module.list $file > ${stub}_mod_cov.csv 
 done
 ```
+
 Collate those across samples:
 ```
-Collate.pl KeggD _mod_cov.csv KeggD/*_mod_cov.csv > FuncResults/mod_cov.csv
+CollateMod.pl KeggD > FuncResults/mod_cov.csv
 ```
 
+What about module names?
 
 
 ## Assembly based metagenomics analysis
