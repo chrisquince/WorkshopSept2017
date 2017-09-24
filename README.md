@@ -752,6 +752,41 @@ do
 done < cogs.txt
 ```
 
+Then trim alignments:
+
+```
+for file in  AlignAll/*gffn
+do
+    echo $stub
+    stub=${file%.gffn}
+    trimal -in $file -out ${stub}_al.gfa -gt 0.9 -cons 60
+done
+```
+
+The next script requires the IDs of any cluster or taxa that may appear in fasta files, therefore:
+
+```
+cat AlignAll/*gffn | grep ">" | sed 's/_COG.*//' | sort | uniq | sed 's/>//g' > Names.txt
+```
+
+Which we run as follows:
+
+```
+~/repos/MAGAnalysis/phyloscripts/CombineGenes.pl Names.txt AlignAll/COG0*_al.gfa > AlignAll.gfa
+```
+
+Then we may want to map taxaids to species names before building tree:
+
+```
+~/repos/MAGAnalysis/phyloscripts/MapTI.pl /home/ubuntu/repos/MAGAnalysis/data/TaxaSpeciesR.txt < AlignAll.gfa > AlignAllR.gfa
+```
+
+Finally we get to build our tree:
+
+FastTreeMP -nt -gtr < AlignAllR.gfa 2> SelectR.out > AlignAllR.tree
+
+
+
 ## Software installation
 
 Going to make an installation directory:
