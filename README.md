@@ -647,9 +647,6 @@ R
 
 Discussion point any methanogens?
 
-Lets construct modules now:
-```
-
 ### Annotate to Kegg modules
 
 Now we find which Kegg modules are present in each cluster by querying their [module reconstruct tool] (http://www.genome.jp/kegg/tool/map_module.html)
@@ -658,7 +655,102 @@ Now we find which Kegg modules are present in each cluster by querying their [mo
 python ~/repos/MAGAnalysis/scripts/KO2MODULEclusters2.py -i CollateHits75.csv -o Collate_modules.csv 
 ```
 
-Discussion point, when is a module present?
+Discussion point, when is a module present? What about methanogenesis modules?
+
+## Taxonomic classification of contigs
+
+There are many ways to taxonomically classify assembled sequence. We suggest a gene based approach. The first step is to call genes on all contigs that are greater than 1,000 bp. Shorter sequences are unlikely to contain complete 
+coding sequences. 
+
+Set the environment variable NR_DMD to point to the location of your formatted NR database:
+```
+export NR_DMD=$HOME/Databases/NR/nr.dmnd
+```
+
+Then we begin by calling genes on all contigs greater than 1000bp in length.
+```
+cd ~/Projects/AD/
+mkdir AssignTaxa
+cd AssignTaxa
+cp ../Annotate/final_contigs_gt1000_c10K.faa .
+```
+
+```
+diamond blastp -p 8 -d $NR_DMD -q final_contigs_gt1000_c10K.faa -o final_contigs_gt1000_c10K.m8 > d.out
+```
+
+To classify the contigs we need two files a gid to taxid mapping file and a mapping of taxaid to full lineage:
+
+1. gi_taxid_prot.dmp
+
+2. all_taxa_lineage_notnone.tsv
+
+These can also be downloaded from the Dropbox:
+``` 
+wget https://www.dropbox.com/s/x4s50f813ok4tqt/gi_taxid_prot.dmp.gz
+wget https://www.dropbox.com/s/honc1j5g7wli3zv/all_taxa_lineage_notnone.tsv.gz
+```
+
+The path to these files are default in the ClassifyContigNR.py script as the variables:
+```
+DEF_DMP_FILE = "/home/chris/native/Databases/nr/FASTA/gi_taxid_prot.dmp"
+
+DEF_LINE_FILE = "/home/chris/native/Databases/nr/FASTA/all_taxa_lineage_notnone.tsv"
+```
+
+We calculate the gene length in amino acids before running this.
+Then we can assign the contigs and genes called on them:
+```
+python $DESMAN/scripts/Lengths.py -i final_contigs_gt1000_c10K.faa > final_contigs_gt1000_c10K.len
+python $DESMAN/scripts/ClassifyContigNR.py final_contigs_gt1000_c10K_nr.m8 final_contigs_gt1000_c10K.len -o final_contigs_gt1000_c10K_nr -l /mypath/all_taxa_lineage_notnone.tsv -g /mypath/gi_taxid_prot.dmp
+```
+
+Then we extract species out:
+```
+$DESMAN/scripts/Filter.pl 8 < final_contigs_gt1000_c10K_nr_contigs.csv | grep -v "_6" | grep -v "None" > final_contigs_gt1000_c10K_nr_species.csv
+```
+
+These can then be used for the cluster confusion plot:
+```
+$CONCOCT/scripts/Validate.pl --cfile=../Concoct/clustering_gt1000.csv --sfile=final_contigs_gt1000_c10K_nr_species.csv --ffile=../contigs/final_contigs_c10K.fa --ofile=Taxa_Conf.csv
+```
+Now the results will be somewhat different...
+```
+N	M	TL	S	K	Rec.	Prec.	NMI	Rand	AdjRand
+9869	1746	1.5257e+07	17	24	0.985459	0.999801	0.990303	0.999300	0.996926
+```
+
+## Construct a phylogenetic tree
+
+Assume we are starting from the 'Split' directory in which we have seperated out the cluster fasta files and we have done the COG assignments for each cluster. Then the first step is to extract each of the 36 conserved core COGs individually. There is an example bash script GetSCG.sh for doing this in phyloscripts but it will need modifying:
+
+```
+cd ~/Projects/AD/Split
+cp ~/repos/MAGAnalysis/cogs.txt .
+mkdir SCGs
+
+while read line
+do
+    cog=$line
+    echo $cog
+     ~/repos/MAGAnalysis/phyloscripts/SelectCogsSCG.pl ../Concoct/clustering_refine_scg.tsv ../Annotate/final_contigs_gt1000_c10K.fna $cog > SCGs/$cog.ffn
+done < cogs.txt
+``` 
+
+Run this after making a directory SCGs and it will create one file for each SCG with the corresponding nucleotide sequences from each cluster but only for this with completeness (> 0.75) hard coded in the perl script somewhere you should check that :)
+
+Then we align each of these cog files against my prepared database containing 1 genome from each bacterial genera and archael species:
+```
+mkdir AlignAll
+
+while read line
+do
+    cog=$line
+    echo $cog
+    cat ~/Databases/NCBI/Cogs/All_$cog.ffn SCGs/${cog}.ffn > AlignAll/${cog}_all.ffn
+    mafft --thread 64 AlignAll/${cog}_all.ffn > AlignAll/${cog}_all.gffn
+done < cogs.txt
+```
 
 ## Software installation
 
