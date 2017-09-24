@@ -581,6 +581,22 @@ cd ..
 cp ~/repos/MAGAnalysis/scripts/Prodigal.sh .
 ./Prodigal.sh 2> Prodigal.out
 ```
+
+Kegg ortholog assignment on genes:
+```
+    for file in Cluster*/*faa
+    do 
+   
+    stub=${file%.faa}
+    base=${stub##*/}
+    echo $base
+
+    diamond blastp -d $KEGG_DB/genes/fasta/genes.dmnd -q $file -p 8 -o ${stub}.m8
+    done
+```
+
+Discussion point why blastp rather than blastx?
+
 ## Software installation
 
 Going to make an installation directory:
