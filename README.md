@@ -597,6 +597,69 @@ Kegg ortholog assignment on genes:
 
 Discussion point why blastp rather than blastx?
 
+The above maps onto Kegg genes these are then mapped to kegg orthologs by the Perl script:
+```
+more ~/bin/Assign_KO.pl
+```
+
+Run as follows:
+```
+COUNT=0
+for file in Cluster*/*m8
+do
+	dir=${file%.m8}
+	echo $file
+	echo $dir
+     Assign_KO.pl < $file > ${dir}.hits&
+    let COUNT=COUNT+1
+
+    if [ $COUNT -eq 8 ]; then
+        wait;
+        COUNT=0
+    fi
+done
+```
+
+Discussion point, trivial parallelisation using bash.
+
+
+We then can create a table of Kegg orthologs across all clusters.
+```
+~/repos/MAGAnalysis/scripts/CollateHits.pl > CollateHits.csv
+```
+
+For Fred's analysis we only want good clusters, select those using R:
+```
+R
+>CollateHits <- read.csv("CollateHits.csv",header=TRUE,row.names=1)
+>scg_ref <- read.table("../Concoct/clustering_refine_scg.tsv",header=TRUE,row.names=1)
+>scg_ref <- scg_ref[,-1]
+>scg_ref <- scg_ref[,-1]
+>rownames(scg_ref) <- gsub("^","C",rownames(scg_ref))
+>
+>CollateHits <- t(CollateHits)
+>CollateHits <- CollateHits[rownames(scg_ref),]
+>CollateHits75 <- CollateHits[rowSums(scg_ref == 1)/36 > 0.75,]
+>CollateHits75 <- CollateHits75[,colSums(CollateHits75) > 0]
+>write.csv(t(CollateHits75),"CollateHits75.csv",quote=FALSE)
+>q()
+```
+
+Discussion point any methanogens?
+
+Lets construct modules now:
+```
+
+### Annotate to Kegg modules
+
+Now we find which Kegg modules are present in each cluster by querying their [module reconstruct tool] (http://www.genome.jp/kegg/tool/map_module.html)
+
+```
+python ~/repos/MAGAnalysis/scripts/KO2MODULEclusters2.py -i CollateHits75.csv -o Collate_modules.csv 
+```
+
+Discussion point, when is a module present?
+
 ## Software installation
 
 Going to make an installation directory:
@@ -833,3 +896,35 @@ Cols in yourfile.out.dm.ps:
 10. Coverage
 ** About what E-value and Coverage cutoff thresholds you should use (in order to further parse yourfile.out.dm.ps file), we have done some evaluation analyses using arabidopsis, rice, Aspergillus nidulans FGSC A4, Saccharomyces cerevisiae S288c and Escherichia coli K-12 MG1655, Clostridium thermocellum ATCC 27405 and Anaerocellum thermophilum DSM 6725. Our suggestion is that for plants, use E-value < 1e-23 and coverage > 0.2; for bacteria, use E-value < 1e-18 and coverage > 0.35; and for fungi, use E-value < 1e-17 and coverage > 0.45.
 ** We have also performed evaluation for the five CAZyme classes separately, which suggests that the best threshold varies for different CAZyme classes (please see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4132414/ for details). Basically to annotate GH proteins, one should use a very relax coverage cutoff or the sensitivity will be low (Supplementary Tables S4 and S9); (ii) to annotate CE families a very stringent E-value cutoff and coverage cutoff should be used; otherwise the precision will be very low due to a very high false positive rate (Supplementary Tables S5 and S10)
+
+We also need some database files versions of which that are compatible with the pipeline 
+we have made available through s3. Below we suggest downloading them to a databases directory:
+
+1. COG RPS database: ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/little_endian/ Cog databases
+    
+    ```
+    mkdir ~/Databases
+    cd ~/Databases
+    wget https://desmandatabases.s3.climb.ac.uk/rpsblast_cog_db.tar.gz
+    tar -xvzf rpsblast_cog_db.tar.gz
+    ```
+2.  NCBI non-redundant database formatted in old GI format downloaded 02/08/2016 02:07:05. We provide 
+this as fasta sequence so that you can diamond format it yourself to avoid any version issues:
+    
+    ```
+    cd ~/Databases
+    mkdir NR
+    cd NR
+    wget https://desmandatabases.s3.climb.ac.uk/nr.faa
+    diamond makedb --in nr.faa -d nr
+    ```
+or we also provide a pre-formatted version:
+    ```
+    wget https://nrdatabase.s3.climb.ac.uk/nr.dmnd
+    ```
+    
+3. GI to Taxaid and lineage files for the above:
+    
+    ```
+    wget https://desmandatabases.s3.climb.ac.uk/gi_taxid_prot.dmp
+    wget https://desmandatabases.s3.climb.ac.uk/all_taxa_lineage_notnone.tsv
