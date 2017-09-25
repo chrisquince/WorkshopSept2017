@@ -718,18 +718,20 @@ $DESMAN/scripts/Filter.pl 8 < final_contigs_gt1000_c10K_nr_contigs.csv | grep -v
 
 These can then be used for a cluster confusion plot:
 ```
-$CONCOCT/scripts/Validate.pl --cfile=../Concoct/clustering_refibe.csv --sfile=final_contigs_gt1000_c10K_nr_species.csv --ffile=../contigs/final_contigs_c10K.fa --ofile=Taxa_Conf.csv
+$CONCOCT/scripts/Validate.pl --cfile=../Concoct/clustering_refine.csv --sfile=final_contigs_gt1000_c10K_nr_species.csv --ffile=../contigs/final_contigs_c10K.fa --ofile=Taxa_Conf.csv
 ```
 Now the results will be somewhat different...
 ```
 N	M	TL	S	K	Rec.	Prec.	NMI	Rand	AdjRand
-
+83423	1181	6.0372e+06	27	145	0.838478	0.985446	0.691768	0.885122	0.771553
 ```
 
 Then plot:
 ```
-
+$CONCOCT/scripts/ConfPlot.R -c Taxa_Conf.csv -o Taxa_Conf.pdf
 ```
+
+![Kraken Figure1](Figures/KrakenFig.jpg)
 
 ## Construct a phylogenetic tree
 
