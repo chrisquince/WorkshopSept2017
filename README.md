@@ -731,7 +731,7 @@ Then plot:
 $CONCOCT/scripts/ConfPlot.R -c Taxa_Conf.csv -o Taxa_Conf.pdf
 ```
 
-![Kraken Figure1](Figures/KrakenFig.jpg)
+![Kraken Figure1](Figures/Taxa_Conf.png)
 
 ## Construct a phylogenetic tree
 
