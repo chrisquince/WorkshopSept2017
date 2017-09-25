@@ -800,7 +800,7 @@ FastTreeMP -nt -gtr < AlignAllR.gfa 2> SelectR.out > AlignAllR.tree
 
 Visualise this locally with FigTree or on the web with ITOL
 
-![Methanogen tree](MethanoTree.tiff)
+![Methanogen tree](Figures/MethanoTree.tiff)
 
 ## Software installation
 
