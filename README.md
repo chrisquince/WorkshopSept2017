@@ -804,6 +804,24 @@ Visualise this locally with FigTree or on the web with ITOL
 
 ![Methanogen tree](Figures/MethanoTree.png)
 
+
+### Annotating to other functional databases
+
+Other databases are HMM based.
+
+Discussion point what is a hidden Markov model classifier?
+
+The CAZyme database is available standalone from [dbCAN](http://csbl.bmb.uga.edu/dbCAN/)
+
+```
+hmmscan --cpu 8 --domtblout final_contigs_gt1000_c10K_faa_dbcan.dm ~/Databases/dbCAN/dbCAN-fam-HMMs.txt.v5 final_contigs_gt1000_c10K.faa  
+```
+
+```
+About what E-value and Coverage cutoff thresholds you should use (in order to further parse yourfile.out.dm.ps file), we have done some evaluation analyses using arabidopsis, rice, Aspergillus nidulans FGSC A4, Saccharomyces cerevisiae S288c and Escherichia coli K-12 MG1655, Clostridium thermocellum ATCC 27405 and Anaerocellum thermophilum DSM 6725. Our suggestion is that for plants, use E-value < 1e-23 and coverage > 0.2; for bacteria, use E-value < 1e-18 and coverage > 0.35; and for fungi, use E-value < 1e-17 and coverage > 0.45.
+
+We have also performed evaluation for the five CAZyme classes separately, which suggests that the best threshold varies for different CAZyme classes (please see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4132414/ for details). Basically to annotate GH proteins, one should use a very relax coverage cutoff or the sensitivity will be low (Supplementary Tables S4 and S9); (ii) to annotate CE families a very stringent E-value cutoff and coverage cutoff should be used; otherwise the precision will be very low due to a very high false positive rate (Supplementary Tables S5 and S10)
+
 ## Independent exercises
 
 ### Run Kraken on human gut
@@ -1033,27 +1051,6 @@ These are both Python 2.7 and require the following modules:
 ```
 wget http://eddylab.org/software/hmmer3/3.1b2/hmmer-3.1b2-linux-intel-x86_64.tar.gz
 ```
-
-21. [dbCAN](http://csbl.bmb.uga.edu/dbCAN/)
-** if you want to run dbCAN CAZyme annotation on your local linux computer, do the following:
-** 1. download dbCAN-fam-HMMs.txt, hmmscan-parser.sh 
-** 2. download HMMER 3.0 package [hmmer.org] and install it properly
-** 3. format HMM db: hmmpress dbCAN-fam-HMMs.txt
-** 4. run: hmmscan --domtblout yourfile.out.dm dbCAN-fam-HMMs.txt yourfile > yourfile.out
-** 5. run: sh hmmscan-parser.sh yourfile.out.dm > yourfile.out.dm.ps (if alignment > 80aa, use E-value < 1e-5, otherwise use E-value < 1e-3; covered fraction of HMM > 0.3)
-Cols in yourfile.out.dm.ps:
-1. Family HMM
-2. HMM length
-3. Query ID
-4. Query length
-5. E-value (how similar to the family HMM)
-6. HMM start
-7. HMM end
-8. Query start
-9. Query end
-10. Coverage
-** About what E-value and Coverage cutoff thresholds you should use (in order to further parse yourfile.out.dm.ps file), we have done some evaluation analyses using arabidopsis, rice, Aspergillus nidulans FGSC A4, Saccharomyces cerevisiae S288c and Escherichia coli K-12 MG1655, Clostridium thermocellum ATCC 27405 and Anaerocellum thermophilum DSM 6725. Our suggestion is that for plants, use E-value < 1e-23 and coverage > 0.2; for bacteria, use E-value < 1e-18 and coverage > 0.35; and for fungi, use E-value < 1e-17 and coverage > 0.45.
-** We have also performed evaluation for the five CAZyme classes separately, which suggests that the best threshold varies for different CAZyme classes (please see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4132414/ for details). Basically to annotate GH proteins, one should use a very relax coverage cutoff or the sensitivity will be low (Supplementary Tables S4 and S9); (ii) to annotate CE families a very stringent E-value cutoff and coverage cutoff should be used; otherwise the precision will be very low due to a very high false positive rate (Supplementary Tables S5 and S10)
 
 We also need some database files versions of which that are compatible with the pipeline 
 we have made available through s3. Below we suggest downloading them to a databases directory:
