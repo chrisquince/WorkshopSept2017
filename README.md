@@ -802,6 +802,20 @@ Visualise this locally with FigTree or on the web with ITOL
 
 ![Methanogen tree](Figures/MethanoTree.png)
 
+## Independent exercises
+
+### Run Kraken on human gut
+
+Download the following healthy human gut samples:
+
+```
+wget https://metagexample.s3.climb.ac.uk/Reads.tar.gz
+tar -xvzf Reads.tar.gz
+```
+
+I want you to subsample, run Kraken and compare to the AD data sets, you can even try assembly!
+
+
 ## Software installation
 
 Going to make an installation directory:
