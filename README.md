@@ -667,7 +667,7 @@ Set the environment variable NR_DMD to point to the location of your formatted N
 export NR_DMD=$HOME/Databases/NR/nr.dmnd
 ```
 
-Then we begin by calling genes on all contigs greater than 1000bp in length.
+Then we begin by copying across the ORFs called on all contigs greater than 1000bp in length.
 ```
 cd ~/Projects/AD/
 mkdir AssignTaxa
@@ -675,9 +675,15 @@ cd AssignTaxa
 cp ../Annotate/final_contigs_gt1000_c10K.faa .
 ```
 
+Then we use diamond to match these against the NCBI NR.
+
 ```
 diamond blastp -p 8 -d $NR_DMD -q final_contigs_gt1000_c10K.faa -o final_contigs_gt1000_c10K.m8 > d.out
 ```
+
+Discussion point, what is the difference between NCBI NR and NT?
+
+Discussion point, what is the difference between diamond blastp and blastx?
 
 To classify the contigs we need two files a gid to taxid mapping file and a mapping of taxaid to full lineage:
 
@@ -693,16 +699,16 @@ wget https://www.dropbox.com/s/honc1j5g7wli3zv/all_taxa_lineage_notnone.tsv.gz
 
 The path to these files are default in the ClassifyContigNR.py script as the variables:
 ```
-DEF_DMP_FILE = "/home/chris/native/Databases/nr/FASTA/gi_taxid_prot.dmp"
+DEF_DMP_FILE = "/home/ubuntu/Databases/NR/gi_taxid_prot.dmp"
 
-DEF_LINE_FILE = "/home/chris/native/Databases/nr/FASTA/all_taxa_lineage_notnone.tsv"
+DEF_LINE_FILE = "/home/ubuntu/Databases/NR/all_taxa_lineage_notnone.tsv"
 ```
 
 We calculate the gene length in amino acids before running this.
 Then we can assign the contigs and genes called on them:
 ```
 python $DESMAN/scripts/Lengths.py -i final_contigs_gt1000_c10K.faa > final_contigs_gt1000_c10K.len
-python $DESMAN/scripts/ClassifyContigNR.py final_contigs_gt1000_c10K_nr.m8 final_contigs_gt1000_c10K.len -o final_contigs_gt1000_c10K_nr -l /mypath/all_taxa_lineage_notnone.tsv -g /mypath/gi_taxid_prot.dmp
+python $DESMAN/scripts/ClassifyContigNR.py final_contigs_gt1000_c10K_nr.m8 final_contigs_gt1000_c10K.len -o final_contigs_gt1000_c10K_nr -l /home/chris/Databases/NR/all_taxa_lineage_notnone.tsv -g /home/chris/Databases/NR/gi_taxid_prot.dmp
 ```
 
 Then we extract species out:
