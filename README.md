@@ -708,7 +708,7 @@ We calculate the gene length in amino acids before running this.
 Then we can assign the contigs and genes called on them:
 ```
 python $DESMAN/scripts/Lengths.py -i final_contigs_gt1000_c10K.faa > final_contigs_gt1000_c10K.len
-python $DESMAN/scripts/ClassifyContigNR.py final_contigs_gt1000_c10K_nr.m8 final_contigs_gt1000_c10K.len -o final_contigs_gt1000_c10K_nr -l /home/chris/Databases/NR/all_taxa_lineage_notnone.tsv -g /home/chris/Databases/NR/gi_taxid_prot.dmp
+python $DESMAN/scripts/ClassifyContigNR.py final_contigs_gt1000_c10K_nr.m8 final_contigs_gt1000_c10K.len -o final_contigs_gt1000_c10K_nr -l /home/ubuntu/Databases/NR/all_taxa_lineage_notnone.tsv -g /home/ubuntu/Databases/NR/gi_taxid_prot.dmp
 ```
 
 Then we extract species out:
@@ -716,14 +716,19 @@ Then we extract species out:
 $DESMAN/scripts/Filter.pl 8 < final_contigs_gt1000_c10K_nr_contigs.csv | grep -v "_6" | grep -v "None" > final_contigs_gt1000_c10K_nr_species.csv
 ```
 
-These can then be used for the cluster confusion plot:
+These can then be used for a cluster confusion plot:
 ```
-$CONCOCT/scripts/Validate.pl --cfile=../Concoct/clustering_gt1000.csv --sfile=final_contigs_gt1000_c10K_nr_species.csv --ffile=../contigs/final_contigs_c10K.fa --ofile=Taxa_Conf.csv
+$CONCOCT/scripts/Validate.pl --cfile=../Concoct/clustering_refibe.csv --sfile=final_contigs_gt1000_c10K_nr_species.csv --ffile=../contigs/final_contigs_c10K.fa --ofile=Taxa_Conf.csv
 ```
 Now the results will be somewhat different...
 ```
 N	M	TL	S	K	Rec.	Prec.	NMI	Rand	AdjRand
-9869	1746	1.5257e+07	17	24	0.985459	0.999801	0.990303	0.999300	0.996926
+
+```
+
+Then plot:
+```
+
 ```
 
 ## Construct a phylogenetic tree
@@ -789,9 +794,13 @@ Then we may want to map taxaids to species names before building tree:
 
 Finally we get to build our tree:
 
+```
 FastTreeMP -nt -gtr < AlignAllR.gfa 2> SelectR.out > AlignAllR.tree
+```
 
+Visualise this locally with FigTree or on the web with ITOL
 
+![Methanogen tree](MethanoTree.tiff)
 
 ## Software installation
 
