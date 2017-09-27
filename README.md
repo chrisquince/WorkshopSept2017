@@ -817,6 +817,35 @@ The CAZyme database is available standalone from [dbCAN](http://csbl.bmb.uga.edu
 hmmscan --cpu 8 --domtblout final_contigs_gt1000_c10K_faa_dbcan.dm ~/Databases/dbCAN/dbCAN-fam-HMMs.txt.v5 final_contigs_gt1000_c10K.faa  
 ```
 
+You will need this parser script:
+```
+wget http://csbl.bmb.uga.edu/dbCAN/download/hmmscan-parser.sh
+```
+
+Place it in your bin directory:
+```
+cp hmmscan-parser.sh ~/bin
+```
+
+```
+hmmscan-parser.sh < final_contigs_gt1000_c10K_faa_dbcan.dm > final_contigs_gt1000_c10K_dbcan.tsv
+```
+
+Then we get consensus:
+```
+~/repos/WorkshopSept2017/scripts/ConsensusDB.pl < final_contigs_gt1000_c10K_dbcan.tsv > final_contigs_gt1000_c10K_dbcan_con.hits
+```
+
+You will need to update your repo to get parser. Can then split across clusters.
+
+```
+cd ../Split
+./SplitDB.pl ../Annotate/final_contigs_gt1000_c10K_dbcan_con.hits ../Concoct/clustering_refine.csv
+```
+
+The above script can be created from SplitGenes.pl with one edit.
+Can also run for each cluster separately.
+
 About what E-value and Coverage cutoff thresholds you should use (in order to further parse yourfile.out.dm.ps file), we have done some evaluation analyses using arabidopsis, rice, Aspergillus nidulans FGSC A4, Saccharomyces cerevisiae S288c and Escherichia coli K-12 MG1655, Clostridium thermocellum ATCC 27405 and Anaerocellum thermophilum DSM 6725. Our suggestion is that for plants, use E-value < 1e-23 and coverage > 0.2; for bacteria, use E-value < 1e-18 and coverage > 0.35; and for fungi, use E-value < 1e-17 and coverage > 0.45.
 
 We have also performed evaluation for the five CAZyme classes separately, which suggests that the best threshold varies for different CAZyme classes (please see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4132414/ for details). Basically to annotate GH proteins, one should use a very relax coverage cutoff or the sensitivity will be low (Supplementary Tables S4 and S9); (ii) to annotate CE families a very stringent E-value cutoff and coverage cutoff should be used; otherwise the precision will be very low due to a very high false positive rate (Supplementary Tables S5 and S10)
